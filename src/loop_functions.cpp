@@ -375,13 +375,13 @@ bool bSetDisplay = false;
 // detect oled-display type
 // see https://github.com/olikraus/u8g2/discussions/2088
 bool esp32_isSSD1306(int address) {
-  byte buffer[0];
+byte buffer[0];
 
-  Wire.begin(I2C_SDA, I2C_SCL);
-  Wire.beginTransmission(address);
-  Wire.write(0x00);
+Wire.begin(I2C_SDA, I2C_SCL);
+Wire.beginTransmission(address);
+Wire.write(0x00);
 Wire.endTransmission(false);
-            Wire.requestFrom(address, static_cast<uint8_t>(1));  // This register is 8 bits = 1 byte long
+Wire.requestFrom(address, static_cast<uint8_t>(1));  // This register is 8 bits = 1 byte long
   if (Wire.available() > 0) {
     Wire.readBytes(buffer, 1);
   }
