@@ -31,5 +31,5 @@ jobs:
     - name: Download build files
       uses: actions/download-artifact@v4
       with:
-        path: .pio/build/E22-DevKit/
+        path: .pio/build/E22-DevKitC/
         name: firmware.bin
