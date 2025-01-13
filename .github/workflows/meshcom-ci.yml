@@ -27,3 +27,9 @@ jobs:
 
     - name: Build PlatformIO Project
       run: pio run -e E22-DevKitC
+
+    - name: Download build files
+      uses: actions/download-artifact@v4
+      with:
+        path: .pio/build/E22-DevKit/
+        name: firmware.bin
