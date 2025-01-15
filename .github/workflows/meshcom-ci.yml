@@ -31,5 +31,18 @@ jobs:
     - name: Upload build firmware
       uses: actions/upload-artifact@v4
       with:
-        path: .pio/build/E22-DevKitC/
-        name: firmware.bin
+        path: .pio/build/E22-DevKitC/firmware.bin
+        name: E22-DevKitC-firmware.bin
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v4
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Automatic Build!
+        draft: false
+        prerelease: false
