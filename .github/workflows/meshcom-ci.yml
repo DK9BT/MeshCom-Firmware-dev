@@ -33,8 +33,7 @@ jobs:
         path: .pio/build/E22-DevKitC/firmware.bin
         name: E22-DevKitC-firmware.bin
         
-    - name: Create Release
-      uses: ncipollo/release-action@v1
+    - uses: ncipollo/release-action@v1
       with:
         artifacts: ".pio/build/E22-DevKitC/firmware.bin"
         bodyFile: "README.md"
