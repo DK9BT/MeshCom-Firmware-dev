@@ -1,11 +1,9 @@
 name: PlatformIO CI
 
-on:
+on: 
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+    tags:
+    - '*'
 
 jobs:
   build:
@@ -34,11 +32,9 @@ jobs:
       with:
         path: .pio/build/E22-DevKitC/firmware.bin
         name: E22-DevKitC-firmware.bin
-
-    - name: Release with Notes
-      uses: softprops/action-gh-release@v1
+        
+    - name: Create Release
+    - uses: ncipollo/release-action@v1
       with:
-        files: |
-          .pio/build/E22-DevKitC/firmware.bin
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: ".pio/build/E22-DevKitC/firmware.bin"
+        bodyFile: "README.md"
