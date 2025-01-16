@@ -28,13 +28,13 @@ jobs:
       run: pio platform install nordicnrf52
 
     - name: Patch PlatformIO for RAK
-      run: "mkdir ~/.platformio/RAK_PATCH & cd ~/.platformio/RAK_PATCH & wget https://raw.githubusercontent.com/RAKWireless/WisBlock/master/PlatformIO/RAK_PATCH.zip & unzip RAK_PATCH.zip & python rak_patch.py"
+      run: "mkdir ~/.platformio/RAK_PATCH && cd ~/.platformio/RAK_PATCH && wget https://raw.githubusercontent.com/RAKWireless/WisBlock/master/PlatformIO/RAK_PATCH.zip && unzip RAK_PATCH.zip && python rak_patch.py"
 
     - name: Build PlatformIO Project
-      run: "cd /home/runner/work/MeshCom-Firmware-dev/MeshCom-Firmware-dev & pio run"
+      run: "cd /home/runner/work/MeshCom-Firmware-dev/MeshCom-Firmware-dev && pio run"
 
     - name: Rename Files
-      run: "mv .pio/build/E22-DevKitC/firmware.bin .pio/build/E22-DevKitC/E22-DevKitC.bin &
+      run: "mv .pio/build/E22-DevKitC/firmware.bin .pio/build/E22-DevKitC/E22-DevKitC.bin & 
       mv .pio/build/heltec_wifi_lora_32_V2/firmware.bin .pio/build/heltec_wifi_lora_32_V2/heltec_wifi_lora_32_V2.bin &
       mv .pio/build/heltec_wifi_lora_32_V3/firmware.bin .pio/build/heltec_wifi_lora_32_V3/heltec_wifi_lora_32_V3.bin &
       mv .pio/build/ttgo-lora32-v21/firmware.bin .pio/build/ttgo-lora32-v21/ttgo-lora32-v21.bin &
