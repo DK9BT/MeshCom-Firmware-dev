@@ -32,7 +32,7 @@ jobs:
 
     - name: Prepare for RAK Patch2
       continue-on-error: true
-      run: "cd /home/runner/work/MeshCom-Firmware-dev/MeshCom-Firmware-dev && pio run -e wiscore_rak4631"
+      run: "cd /home/runner/work/MeshCom-Firmware-dev/MeshCom-Firmware-dev && pio run -e wiscore_rak4631 && exit 0"
 
     - name: Patch PlatformIO for RAK2
       run: "cd ~/.platformio/RAK_PATCH && python rak_patch.py"
