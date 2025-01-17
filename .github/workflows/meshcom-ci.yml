@@ -34,6 +34,7 @@ jobs:
       run: "cd /home/runner/work/MeshCom-Firmware-dev/MeshCom-Firmware-dev && pio run -e wiscore_rak4631"
 
     - name: Patch PlatformIO for RAK2
+      if: success() || failure()
       run: "cd ~/.platformio/RAK_PATCH && python rak_patch.py"
 
     - name: Build all Projects
