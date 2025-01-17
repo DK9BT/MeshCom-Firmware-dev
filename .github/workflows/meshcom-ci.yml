@@ -27,10 +27,16 @@ jobs:
     - name: Install RAK Deps
       run: pio platform install nordicnrf52
 
-    - name: Patch PlatformIO for RAK
+    - name: Patch PlatformIO for RAK1
       run: "mkdir ~/.platformio/RAK_PATCH && cd ~/.platformio/RAK_PATCH && wget https://raw.githubusercontent.com/RAKWireless/WisBlock/master/PlatformIO/RAK_PATCH.zip && unzip RAK_PATCH.zip && python rak_patch.py"
 
-    - name: Build PlatformIO Project
+    - name: Prepare for RAK Patch2
+      run: "cd /home/runner/work/MeshCom-Firmware-dev/MeshCom-Firmware-dev && pio run -e wiscore_rak4631"
+
+    - name: Patch PlatformIO for RAK2
+      run: "cd ~/.platformio/RAK_PATCH && python rak_patch.py"
+
+    - name: Build all Projects
       run: "cd /home/runner/work/MeshCom-Firmware-dev/MeshCom-Firmware-dev && pio run"
 
     - name: Rename Files
