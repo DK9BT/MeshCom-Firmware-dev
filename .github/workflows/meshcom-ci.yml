@@ -37,6 +37,7 @@ jobs:
       run: "cd ~/.platformio/RAK_PATCH && python rak_patch.py"
 
     - name: Build all Projects
+      if: success() || failure()
       run: "cd /home/runner/work/MeshCom-Firmware-dev/MeshCom-Firmware-dev && pio run"
 
     - name: Rename Files
