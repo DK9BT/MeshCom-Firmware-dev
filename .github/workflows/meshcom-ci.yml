@@ -31,14 +31,12 @@ jobs:
       run: "mkdir ~/.platformio/RAK_PATCH && cd ~/.platformio/RAK_PATCH && wget https://raw.githubusercontent.com/RAKWireless/WisBlock/master/PlatformIO/RAK_PATCH.zip && unzip RAK_PATCH.zip && python rak_patch.py"
 
     - name: Prepare for RAK Patch2
-      run: "cd /home/runner/work/MeshCom-Firmware-dev/MeshCom-Firmware-dev && pio run -e wiscore_rak4631"
+      run: "cd /home/runner/work/MeshCom-Firmware-dev/MeshCom-Firmware-dev && pio run -e wiscore_rak4631 && exit 0"
 
     - name: Patch PlatformIO for RAK2
-      if: success() || failure()
       run: "cd ~/.platformio/RAK_PATCH && python rak_patch.py"
 
     - name: Build all Projects
-      if: success() || failure()
       run: "cd /home/runner/work/MeshCom-Firmware-dev/MeshCom-Firmware-dev && pio run"
 
     - name: Rename Files
@@ -63,4 +61,4 @@ jobs:
         .pio/build/ttgo_tbeam_SX1268/ttgo_tbeam_SX1268.bin,
         .pio/build/vision-master-e290/vision-master-e290.bin,
         .pio/build/wiscore_rak4631/wiscore_rak4631.bin"
-        bodyFile: "README.md"
+        bodyFile: "release.md"
