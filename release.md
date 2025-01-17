@@ -25,4 +25,4 @@ wiscore_rak4631.bin
 
 [MeshCom@ICSSW ](https://icssw.org/meshcom/)
 
-[MeshCom Changelog](https://icssw.org/meshcom/)
+[MeshCom Changelog](https://icssw.org/meshcom-versionen/)
