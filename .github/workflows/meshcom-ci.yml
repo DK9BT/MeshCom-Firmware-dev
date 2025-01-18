@@ -32,13 +32,13 @@ jobs:
 
     - name: Prepare for RAK Patch2
       continue-on-error: true
-      run: "cd /home/runner/work/MeshCom-Firmware-dev/MeshCom-Firmware-dev && pio run -e wiscore_rak4631 && exit 0"
+      run: "cd ${{ github.workspace }} && pio run -e wiscore_rak4631 && exit 0"
 
     - name: Patch PlatformIO for RAK2
       run: "cd ~/.platformio/RAK_PATCH && python rak_patch.py"
 
     - name: Build all Projects
-      run: "cd /home/runner/work/MeshCom-Firmware-dev/MeshCom-Firmware-dev && pio run"
+      run: "cd ${{ github.workspace }} && pio run"
 
     - name: Rename Files
       run: "mv .pio/build/E22-DevKitC/firmware.bin .pio/build/E22-DevKitC/E22-DevKitC.bin & 
