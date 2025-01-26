@@ -36,6 +36,7 @@ bool bPosDisplay = true;
 bool bDisplayOff = false;
 bool bDisplayVolt = false;
 bool bDisplayInfo = false;
+bool bDisplayRetx = false;
 unsigned long DisplayOffWait = 0;
 bool bDisplayTrack = false;
 bool bGPSON = false;
@@ -150,6 +151,7 @@ int iWriteOwn=0;
 unsigned char ringBuffer[MAX_RING][UDP_TX_BUF_SIZE] = {0};
 int iWrite=0;
 int iRead=0;
+int iRetransmit=-1;
 
 // RINGBUFFER for incomming LoRa RX msg_id
 uint8_t ringBufferLoraRX[MAX_RING][4] = {0};
@@ -1059,10 +1061,10 @@ void sendDisplayText(struct aprsMessage &aprsmsg, int16_t rssi, int8_t snr)
     // DM
     if(aprsmsg.msg_destination_path != "*")
     {
-        strPath = aprsmsg.msg_source_call + ">" + aprsmsg.msg_destination_call;
+        strPath = "DM <" + aprsmsg.msg_source_call + ">";
     }
 
-    if(aprsmsg.msg_source_path.length() < (20-7))
+    if(strPath.length() < (20-4))
         sprintf(msg_text, "%s <%i>", strPath.c_str(), rssi);
     else
         sprintf(msg_text, "%s", strPath.c_str());
@@ -1098,10 +1100,10 @@ void sendDisplayText(struct aprsMessage &aprsmsg, int16_t rssi, int8_t snr)
     // DM
     if(aprsmsg.msg_destination_path != "*")
     {
-        strPath = aprsmsg.msg_source_call + ">" + aprsmsg.msg_destination_call;
+        strPath = "DM <" + aprsmsg.msg_source_call + ">";
     }
 
-    if(aprsmsg.msg_source_path.length() < (20-7))
+    if(aprsmsg.msg_source_path.length() < (20-5))
         sprintf(msg_text, "%s <%i>", strPath.c_str(), rssi);
     else
         sprintf(msg_text, "%s", strPath.c_str());
@@ -1969,9 +1971,26 @@ void sendMessage(char *msg_text, int len)
     if(iWriteOwn >= MAX_RING)
         iWriteOwn=0;
 
+    // Master RingBuffer for transmission
     // local messages send to LoRa TX
     ringBuffer[iWrite][0]=aprsmsg.msg_len;
-    memcpy(ringBuffer[iWrite]+1, msg_buffer, aprsmsg.msg_len);
+    memcpy(ringBuffer[iWrite]+2, msg_buffer, aprsmsg.msg_len);
+    
+    if (ringBuffer[iWrite][2] == 0x3A) // only Messages
+    {
+        ringBuffer[iWrite][1] = 0x00; // retransmission Status ...0xFF no retransmission
+    }
+    else
+    {
+        ringBuffer[iWrite][1] = 0xFF; // retransmission Status ...0xFF no retransmission
+    }   
+
+    if(bDisplayRetx)
+    {
+        unsigned int ring_msg_id = (ringBuffer[iWrite][6]<<24) | (ringBuffer[iWrite][5]<<16) | (ringBuffer[iWrite][4]<<8) | ringBuffer[iWrite][3];
+        Serial.printf("einfügen retid:%i status:%02X lng;%02X msg-id: %c-%08X\n", iWrite, ringBuffer[iWrite][1], ringBuffer[iWrite][0], ringBuffer[iWrite][2], ring_msg_id);
+    }
+
     iWrite++;
     if(iWrite >= MAX_RING)
         iWrite=0;
@@ -2288,7 +2307,8 @@ void sendPosition(unsigned int intervall, double lat, char lat_c, double lon, ch
 
         // local LoRa-APRS position-messages send to LoRa TX
         ringBuffer[iWrite][0]=ilng;
-        memcpy(ringBuffer[iWrite]+1, msg_buffer, ilng);
+        ringBuffer[iWrite][1]=0xFF;    // Status byte for retransmission 0xFF no retransmission
+        memcpy(ringBuffer[iWrite]+2, msg_buffer, ilng);
         iWrite++;
         if(iWrite >= MAX_RING)
             iWrite=0;
@@ -2374,7 +2394,8 @@ void sendPosition(unsigned int intervall, double lat, char lat_c, double lon, ch
 
         // local position-messages send to LoRa TX
         ringBuffer[iWrite][0]=aprsmsg.msg_len;
-        memcpy(ringBuffer[iWrite]+1, msg_buffer, aprsmsg.msg_len);
+        ringBuffer[iWrite][1]=0xFF;    // Status byte for retransmission 0xFF no retransmission
+        memcpy(ringBuffer[iWrite]+2, msg_buffer, aprsmsg.msg_len);
         iWrite++;
         if(iWrite >= MAX_RING)
             iWrite=0;
@@ -2447,7 +2468,8 @@ void sendAPPPosition(double lat, char lat_c, double lon, char lon_c, float temp2
 
     // local position-messages send to LoRa TX
     ringBuffer[iWrite][0]=aprsmsg.msg_len;
-    memcpy(ringBuffer[iWrite]+1, msg_buffer, aprsmsg.msg_len);
+    ringBuffer[iWrite][1]=0xFF;    // Status byte for retransmission 0xFF no retransmission
+    memcpy(ringBuffer[iWrite]+2, msg_buffer, aprsmsg.msg_len);
     iWrite++;
     if(iWrite >= MAX_RING)
         iWrite=0;
@@ -2508,7 +2530,8 @@ void SendAckMessage(String dest_call, unsigned int iAckId)
     if(strcmp(dest_call.c_str(), meshcom_settings.node_call) == 0)
     {
         ringBuffer[iWrite][0]=aprsmsg.msg_len;
-        memcpy(ringBuffer[iWrite]+1, msg_buffer, aprsmsg.msg_len);
+        ringBuffer[iWrite][2]=0xFF;    // Status byte for retransmission 0xFF no retransmission
+        memcpy(ringBuffer[iWrite]+2, msg_buffer, aprsmsg.msg_len);
         iWrite++;
         if(iWrite >= MAX_RING)
             iWrite=0;

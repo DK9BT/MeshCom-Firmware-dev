@@ -247,6 +247,24 @@ void commandAction(char *msg_text, bool ble)
         return;
     }
     else
+    if(commandCheck(msg_text+2, (char*)"setretx off") == 0)
+    {
+        Serial.println("\nsetretx off");
+
+        bDisplayRetx=false;
+
+        return;
+    }
+    else
+    if(commandCheck(msg_text+2, (char*)"setretx on") == 0)
+    {
+        Serial.println("\nsetretx on");
+
+        bDisplayRetx=true;
+
+        return;
+    }
+    else
     if(commandCheck(msg_text+2, (char*)"shortpath off") == 0)
     {
         Serial.println("\nshortpath off");
@@ -1253,6 +1271,7 @@ void commandAction(char *msg_text, bool ble)
     {
         bLORADEBUG=true;
         bDisplayInfo=true;
+        bDisplayRetx=true;
 
         meshcom_settings.node_sset = meshcom_settings.node_sset | 0x0200;   //
 
@@ -1270,6 +1289,7 @@ void commandAction(char *msg_text, bool ble)
     {
         bLORADEBUG=false;
         bDisplayInfo=false;
+        bDisplayRetx=false;
 
         meshcom_settings.node_sset = meshcom_settings.node_sset & 0x7DFF;   //
 
@@ -2578,6 +2598,7 @@ void commandAction(char *msg_text, bool ble)
             idoc["GCB4"] = meshcom_settings.node_gcb[4];
             idoc["GCB5"] = meshcom_settings.node_gcb[5];
             idoc["CTRY"] = ctrycode;
+            idoc["BOOST"] = (bBOOSTEDGAIN ? "on" : "off");
 
             serializeJson(idoc, print_buff, measureJson(idoc));
 
@@ -2607,14 +2628,19 @@ void commandAction(char *msg_text, bool ble)
             Serial.printf("...EXTUDP  %s  ...EXTSERUDP  %s  ...EXT IP  %s\n", (bEXTUDP?"on":"off"), (bEXTSER?"on":"off"), meshcom_settings.node_extern);
 #endif
             Serial.printf("...BTCODE  %06i\n", meshcom_settings.bt_code);
-            Serial.printf("...ATXT: %s\n...NAME: %s\n...BLE : %s\n...DISPLAY: %s\n...CTRY %s\n...FREQ %.4f MHz TXPWR %i dBm\n",
+            Serial.printf("...ATXT: %s\n...NAME: %s\n...BLE : %s\n...DISPLAY: %s\n...CTRY %s\n...FREQ %.4f MHz TXPWR %i dBm RXBOOST %s\n",
                     meshcom_settings.node_atxt, meshcom_settings.node_name, (bBLElong?"long":"short"),  (bDisplayOff?"off":"on"),
-                    getCountry(meshcom_settings.node_country).c_str() , getFreq(), getPower());
+                    getCountry(meshcom_settings.node_country).c_str() , getFreq(), getPower(), (bBOOSTEDGAIN?"on":"off"));
 
             for(int ig=0;ig<6;ig++)
             {
                 if(meshcom_settings.node_gcb[ig] > 0)
-                    Serial.printf("...GC [%2i] %4i\n", ig+1, meshcom_settings.node_gcb[ig]);
+                {
+                    if(ig == 0)
+                        Serial.printf("\n...");
+
+                    Serial.printf("GC-%i:%i ", ig+1, meshcom_settings.node_gcb[ig]);
+                }
             }
 
             if(bSOFTSERON && meshcom_settings.node_ss_baud > 0)
@@ -2628,7 +2654,7 @@ void commandAction(char *msg_text, bool ble)
 
             if(bINA226ON)
             {
-                Serial.printf("INA226\n");
+                Serial.printf("\nINA226\n");
                 Serial.printf("...vBUS     %.2f V\n", meshcom_settings.node_vbus);
                 Serial.printf("...vSHUNT   %.2f mV\n", meshcom_settings.node_vshunt);
                 Serial.printf("...vCURRENT %.1f mA\n", meshcom_settings.node_vcurrent);
@@ -2636,21 +2662,21 @@ void commandAction(char *msg_text, bool ble)
                 Serial.println("");
             }
 
-            Serial.printf("...Webserver %s\n", (bWEBSERVER?"on":"off"));
-            Serial.printf("...Webpwd    %s\n", meshcom_settings.node_webpwd);
-            Serial.printf("...Gateway   %s %s\n", (bGATEWAY?"on":"off"), (bGATEWAY_NOPOS?"nopos":""));
+            Serial.printf("\n...Webserver %s", (bWEBSERVER?"on":"off"));
+            Serial.printf(" / Webpwd <%s>", meshcom_settings.node_webpwd);
+            Serial.printf(" / Gateway %s %s\n", (bGATEWAY?"on":"off"), (bGATEWAY_NOPOS?"nopos":""));
 
             #ifndef BOARD_RAK4630
                 Serial.printf("...WIFI-AP   %s\n", (bWIFIAP?"on":"off"));
                 if(bWIFIAP)
                 {
-                    Serial.printf("...SSID      %s\n", cBLEName);
-                    Serial.printf("...PASSWORD <>\n");
+                    Serial.printf("...SSID <%s>", cBLEName);
+                    Serial.printf(" / PASSWORD <>\n");
                 }
                 else
                 {
-                    Serial.printf("...SSID      %s\n", meshcom_settings.node_ssid);
-                    Serial.printf("...PASSWORD  %s\n", meshcom_settings.node_pwd);
+                    Serial.printf("...SSID <%s>", meshcom_settings.node_ssid);
+                    Serial.printf(" / PASSWORD <%s>\n", meshcom_settings.node_pwd);
                 }
 
                 Serial.printf("...OWNIP address: %s\n", meshcom_settings.node_ownip);
@@ -2658,7 +2684,7 @@ void commandAction(char *msg_text, bool ble)
                 Serial.printf("...OWNGW address: %s\n", meshcom_settings.node_owngw);
             #endif
 
-            Serial.printf("...hasIpAddress: %s\n", (meshcom_settings.node_hasIPaddress?"yes":"no"));
+            Serial.printf("\n...hasIpAddress: %s\n", (meshcom_settings.node_hasIPaddress?"yes":"no"));
             if(meshcom_settings.node_hasIPaddress)
             {
                 Serial.printf("...IP address   : %s\n", meshcom_settings.node_ip);
